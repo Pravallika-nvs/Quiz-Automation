@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function FilterBar({ filters, setFilters, categories = [], difficulties = [], statuses = [], onBulkDelete }) {
+export default function FilterBar({ filters, setFilters, categories = [], difficulties = [], onBulkDelete }) {
   const update = (key, value) => setFilters(prev => ({ ...prev, [key]: value }));
 
   return (
@@ -26,12 +26,15 @@ export default function FilterBar({ filters, setFilters, categories = [], diffic
         ))}
       </select>
 
-      <select value={filters.status} onChange={e => update('status', e.target.value)} className="px-3 py-2 border rounded">
-        <option value="">Any Status</option>
-        {statuses.map(s => (
-          <option key={s} value={s}>{s}</option>
-        ))}
-      </select>
+      <div className="flex items-center gap-2">
+        <label className="text-sm text-slate-600">From</label>
+        <input type="date" value={filters.fromDate || ''} onChange={e => update('fromDate', e.target.value)} className="px-3 py-2 border rounded" />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <label className="text-sm text-slate-600">To</label>
+        <input type="date" value={filters.toDate || ''} onChange={e => update('toDate', e.target.value)} className="px-3 py-2 border rounded" />
+      </div>
 
       <button onClick={onBulkDelete} className="ml-auto bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
         Bulk Delete
