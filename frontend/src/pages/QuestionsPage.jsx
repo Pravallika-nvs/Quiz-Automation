@@ -1,23 +1,40 @@
 import React, { useMemo, useState } from 'react';
+//import { useNavigate } from 'react-router-dom';
 import SideBar from '../components/SideBar';
 import StatsCard from '../components/StatsCard';
-import FilterBar from '../components/FilterBar';
+import QuestionsTable from '../components/QuestionsTable';
 
-const sampleData = [
-  { id: 1, text: 'What is React?', category: 'Frontend', difficulty: 'Easy', status: 'Approved' },
-  { id: 2, text: 'Explain closures in JS', category: 'Programming', difficulty: 'Medium', status: 'Pending' },
-  { id: 3, text: 'What is SQL injection?', category: 'Security', difficulty: 'Hard', status: 'Rejected' },
-  { id: 4, text: 'Define polymorphism', category: 'Programming', difficulty: 'Easy', status: 'Approved' },
-  { id: 5, text: 'What is Tailwind CSS?', category: 'Frontend', difficulty: 'Easy', status: 'Pending' },
+// Mock JSON data (20+ questions) with date fields
+const mockData = [
+  { id: 1, text: 'What is React and why use it?', category: 'Frontend', difficulty: 'Easy', status: 'Approved', date: '2026-06-22T10:12:00Z' },
+  { id: 2, text: 'Explain closures in JavaScript with an example.', category: 'Programming', difficulty: 'Medium', status: 'Pending', date: '2026-06-21T09:00:00Z' },
+  { id: 3, text: 'What is SQL injection and how to prevent it?', category: 'Security', difficulty: 'Hard', status: 'Rejected', date: '2026-06-20T12:30:00Z' },
+  { id: 4, text: 'Define polymorphism in OOP.', category: 'Programming', difficulty: 'Easy', status: 'Approved', date: '2026-06-19T14:20:00Z' },
+  { id: 5, text: 'What is Tailwind CSS and utility-first approach?', category: 'Frontend', difficulty: 'Easy', status: 'Pending', date: '2026-06-18T08:45:00Z' },
+  { id: 6, text: 'Explain event delegation in JavaScript.', category: 'Frontend', difficulty: 'Medium', status: 'Approved', date: '2026-06-17T11:11:00Z' },
+  { id: 7, text: 'Describe the HTTP request lifecycle.', category: 'Networking', difficulty: 'Medium', status: 'Pending', date: '2026-06-16T15:00:00Z' },
+  { id: 8, text: 'What is CORS and how does it work?', category: 'Security', difficulty: 'Medium', status: 'Approved', date: '2026-06-15T10:00:00Z' },
+  { id: 9, text: 'Explain promises versus async/await.', category: 'Programming', difficulty: 'Medium', status: 'Pending', date: '2026-06-14T09:30:00Z' },
+  { id: 10, text: 'What are RESTful APIs and principles?', category: 'Backend', difficulty: 'Easy', status: 'Approved', date: '2026-06-13T13:00:00Z' },
+  { id: 11, text: 'How does garbage collection work in JS engines?', category: 'Programming', difficulty: 'Hard', status: 'Pending', date: '2026-06-12T07:45:00Z' },
+  { id: 12, text: 'Explain normalization in relational databases.', category: 'Database', difficulty: 'Medium', status: 'Approved', date: '2026-06-11T16:20:00Z' },
+  { id: 13, text: 'Describe the CAP theorem.', category: 'Database', difficulty: 'Hard', status: 'Rejected', date: '2026-06-10T12:00:00Z' },
+  { id: 14, text: 'What is functional programming?', category: 'Programming', difficulty: 'Easy', status: 'Approved', date: '2026-06-09T10:10:00Z' },
+  { id: 15, text: 'Explain how web sockets work.', category: 'Networking', difficulty: 'Medium', status: 'Pending', date: '2026-06-08T09:05:00Z' },
+  { id: 16, text: 'What is a closure and where is it useful?', category: 'Programming', difficulty: 'Medium', status: 'Approved', date: '2026-06-07T14:22:00Z' },
+  { id: 17, text: 'How to secure REST APIs?', category: 'Security', difficulty: 'Hard', status: 'Pending', date: '2026-06-06T18:00:00Z' },
+  { id: 18, text: 'What are design patterns? Give examples.', category: 'Architecture', difficulty: 'Medium', status: 'Approved', date: '2026-06-05T11:11:00Z' },
+  { id: 19, text: 'Explain event loop in Node.js.', category: 'Backend', difficulty: 'Hard', status: 'Rejected', date: '2026-06-04T08:30:00Z' },
+  { id: 20, text: 'What is responsive design?', category: 'Frontend', difficulty: 'Easy', status: 'Approved', date: '2026-06-03T12:55:00Z' },
+  { id: 21, text: 'How to optimize SQL queries for performance?', category: 'Database', difficulty: 'Hard', status: 'Pending', date: '2026-06-02T10:00:00Z' },
 ];
 
-const statusList = ['Pending', 'Approved', 'Rejected'];
-
 export default function QuestionsPage() {
-  const [data, setData] = useState(sampleData);
-  const [filters, setFilters] = useState({ search: '', category: '', difficulty: '', status: '' });
+  const [data, setData] = useState(mockData);
+  const [filters, setFilters] = useState({ search: '', category: '', difficulty: '', fromDate: '', toDate: '' });
   const [activeTab, setActiveTab] = useState('All');
   const [selected, setSelected] = useState(new Set());
+  //const navigate = useNavigate();
 
   const categories = useMemo(() => Array.from(new Set(data.map(d => d.category))), [data]);
   const difficulties = useMemo(() => Array.from(new Set(data.map(d => d.difficulty))), [data]);
@@ -97,7 +114,11 @@ export default function QuestionsPage() {
             {tabs.map(t => (
               <button
                 key={t.key}
-                onClick={() => setActiveTab(t.key)}
+                onClick={() => {
+                  setActiveTab(t.key);
+                  setFilters({ search: '', category: '', difficulty: '', fromDate: '', toDate: '' });
+                  setSelected(new Set());
+                }}
                 className={`px-3 py-2 rounded-md -mb-px ${activeTab === t.key ? 'bg-purple-600 text-white' : 'text-slate-600'}`}
               >
                 {t.label} <span className="text-sm text-slate-400">({t.count})</span>
@@ -106,51 +127,16 @@ export default function QuestionsPage() {
           </div>
 
           <div className="mt-4 bg-white p-4 rounded shadow">
-            <div className="mb-4">
-              <FilterBar
-                filters={filters}
-                setFilters={setFilters}
-                categories={categories}
-                difficulties={difficulties}
-                statuses={['Pending', 'Approved', 'Rejected']}
-                onBulkDelete={bulkDelete}
-              />
-            </div>
-
-            <table className="w-full text-left">
-              <thead className="text-sm text-slate-500">
-                <tr>
-                  <th className="py-2"><input type="checkbox" onChange={e => {
-                    if (e.target.checked) setSelected(new Set(filtered.map(f => f.id)));
-                    else setSelected(new Set());
-                  }} checked={selected.size > 0 && selected.size === filtered.length} /></th>
-                  <th className="py-2">Question</th>
-                  <th className="py-2">Category</th>
-                  <th className="py-2">Difficulty</th>
-                  <th className="py-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(q => (
-                  <tr key={q.id} className="border-t">
-                    <td className="py-2"><input type="checkbox" checked={selected.has(q.id)} onChange={() => toggleSelect(q.id)} /></td>
-                    <td className="py-2">{q.text}</td>
-                    <td className="py-2">{q.category}</td>
-                    <td className="py-2">{q.difficulty}</td>
-                    <td className="py-2">
-                      <span className={`px-2 py-1 rounded-full text-sm ${q.status === 'Approved' ? 'bg-green-100 text-green-700' : q.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-700'}`}>
-                        {q.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-slate-500">No questions found</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <QuestionsTable
+              data={data}
+              activeTab={activeTab}
+              filters={filters}
+              setFilters={setFilters}
+              selected={selected}
+              setSelected={setSelected}
+              onDelete={(id) => setData(prev => prev.filter(p => p.id !== id))}
+              onEditNavigate={(item) => navigate(`/questions/${item.id}`)}
+            />
           </div>
         </div>
       </main>
